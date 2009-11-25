@@ -6,7 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "rack-esi"
     gem.summary = %Q{ESI middleware implementation for Rack.}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.description = %Q{Nokogiri based ESI middleware implementation for Rack with (limited) support for include, remove and comment.}
     gem.email = "florian.assmann@email.de"
     gem.homepage = "http://github.com/boof/rack-esi"
     gem.authors = ["Florian Assmann"]
