@@ -11,7 +11,7 @@ for include, remove and comment.
  * include limits (:includes => 32)
  * support for &lt;include&gt; alt and noerror attributes
 
-_It's for development purpose since its still 0.1.x..._
+_It's for development purpose..._
 
 ## Installation
 
@@ -20,7 +20,8 @@ _It's for development purpose since its still 0.1.x..._
 ## Rails Setup (environment.rb)
 
     config.gem 'rack-esi'
-    config.middleware.use(Rack::ESI, opts = {})
+    require 'rack-esi'
+    config.middleware.insert_before config.middleware.first, Rack::ESI
 
 ## TODO
 
