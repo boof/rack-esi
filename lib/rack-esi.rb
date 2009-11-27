@@ -3,7 +3,17 @@ require 'nokogiri'
 
 class Rack::ESI
   NS = { 'esi' => 'http://www.edge-delivery.org/esi/1.0' }
-  Error = Class.new RuntimeError
+  METHODS = { 'include' => :esi_include, 'remove' => nil, 'comment' => nil }
+  CSS = METHODS.keys.map { |cmd| "esi|#{ cmd }" } * ','
+
+  class Error < RuntimeError
+    def initialize(status, headers, response)
+      @status, @headers, @response = status, headers, response
+    end
+    def finish
+      return [@status, @headers, backtrace]
+    end
+  end
 
   def initialize(app, options = {})
     @app  = app
@@ -17,49 +27,35 @@ class Rack::ESI
   def call env, counter = { :recursion => 0, :includes => 0 }
     return @app.call(env) if skip_path? env['PATH_INFO']
 
-    status, headers, source = @app.call env
-    return status, headers, source if skip_type? headers['Content-Type']
+    status, headers, input = @app.call env.dup
+    return status, headers, input if skip_type? headers['Content-Type']
 
-    Rack::Response.new { |target|
-      source.each { |body| target.write compile(body, env, counter) }
-    }.finish
+    output = []
+    input.each { |body| output << compile_body(body, env, counter) }
+
+    Rack::Response.new(output, status, headers).finish
   end
 
   private
 
+    def with_compiled_path(env, path)
+      # TODO: should compile variables.
+      env.merge 'PATH_INFO' => path, 'REQUEST_URI' => path
+    end
+
     def fetch(path, env, counter)
-      call env.merge('PATH_INFO' => path), counter if path
+      call with_compiled_path(env, path), counter if path
+    rescue => e
+      return [500, {}, e.backtrace]
     end
 
     # Should I use XML::SAX::Parser?
-    def compile(body, env, counter)
+    def compile_body(body, env, counter)
       document = Nokogiri.XML body
 
-      document.css('esi|include,esi|remove,esi|comment', NS).each do |node|
-        case node.name
-        when 'include'
-          next unless counter[:includes] < @max_includes
-          counter[:includes] += 1
-          begin
-            next unless counter[:recursion] < @max_recursion
-            counter[:recursion] += 1
-            status, headers, compiled = fetch node['src'], env, counter
-            status, headers, compiled = fetch node['alt'], env, counter if status != 200
-          ensure
-            counter[:recursion] -= 1
-          end
-
-          if status != 200
-            raise Error if node['onerror'] != 'continue'
-            compiled = []
-          end
-
-          data = '' and compiled.each { |body| data << body }
-          node.swap data
-
-        when 'remove', 'comment'
-          node.unlink
-        end
+      document.css(CSS, NS).each do |node|
+        method = METHODS[node.name] and send method, node, env, counter
+        node.unlink
       end
 
       document.to_xhtml
@@ -70,6 +66,32 @@ class Rack::ESI
     end
     def skip_type?(type)
       @types !~ type
+    end
+
+    def max?(counter)
+      not counter[:includes] < @max_includes &&
+          counter[:recursion] < @max_recursion
+    end
+
+    def esi_include(node, env, counter)
+      return if max? counter
+
+      counter[:includes] += 1
+      counter[:recursion] += 1
+
+      status, headers, response = fetch node['src'], env, counter
+      status, headers, response = fetch node['alt'], env, counter if status != 200
+
+      if status == 200
+        data = ''
+        response.each { |inc| data << inc }
+        node.before data
+      elsif node['onerror'] != 'continue'
+        raise Error.new(status, headers, response)
+      end
+
+    ensure
+      counter[:recursion] -= 1
     end
 
 end
