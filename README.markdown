@@ -28,12 +28,12 @@ _It's for development purpose..._
  * write documentation
  * write more tests
  * support more ESI elements
- * switch to Nokogiri::XML::SAX::Document?
 
 ## Dependencies
 
- * Nokogiri
  * Rack
+ * Nokogiri
+ ... **and a xmlns:esi="http://www.edge-delivery.org/esi/1.0" declaration around your esi nodes.**
 
 ## Note on Patches/Pull Requests
  
