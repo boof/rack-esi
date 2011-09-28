@@ -5,7 +5,7 @@ Bundler.require
 
 require File.expand_path('../rack-esi/processor', __FILE__)
 
-class Rack::ESI < Struct.new(:app)
+class Rack::ESI
 
   def initialize(app, options = {})
     @app        = app

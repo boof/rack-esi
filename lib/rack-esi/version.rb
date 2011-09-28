@@ -1,7 +1,3 @@
-module Rack
-  class ESI < Struct.new(:app, :options)
-
-    VERSION = "0.2.0"
-
-  end
+class Rack::ESI
+  VERSION = "0.2.0"
 end
