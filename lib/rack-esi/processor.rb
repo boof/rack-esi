@@ -46,7 +46,9 @@ class Rack::ESI
     def process(body)
       document = esi.parser.parse read(body)
       process_document document
-      document.send esi.serializer
+      [
+        document.send( esi.serializer )
+      ]
     end
 
   end
