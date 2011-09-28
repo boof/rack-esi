@@ -1,8 +1,12 @@
 require 'pathname'
-require 'rubygems'
-require 'riot'
-require 'rack-esi'
 require 'rack/mock'
+require 'rack/static'
+require 'rack/file'
+
+require File.expand_path('../../lib/rack-esi', __FILE__)
+Bundler.require :development
+
+Nokogiri
 
 def html(body)
   Nokogiri.HTML(body).root

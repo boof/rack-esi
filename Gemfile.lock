@@ -1,0 +1,24 @@
+PATH
+  remote: .
+  specs:
+    rack-esi (0.2.0)
+      nokogiri
+      rack
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    nokogiri (1.5.0)
+    rack (1.3.3)
+    riot (0.12.5)
+      rr
+    rr (1.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  nokogiri
+  rack
+  rack-esi!
+  riot

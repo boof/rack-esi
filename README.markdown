@@ -1,49 +1,66 @@
 # rack-esi
 
-Nokogiri based ESI middleware implementation for Rack with (limited) support
-for include, remove and comment.
+Rack-ESI is a Nokogiri based ESI middleware implementation for Rack with support for include tags, all other ESI namespaced nodes are just removed.
+
+To make this gem work you must define the (xmlns:esi)[http://www.edge-delivery.org/esi/1.0] namespace in your text/html response.
+
+Note: This gem should only be used in development. For production use setup varnish or any other ESI enabled server.
 
 ## Features
 
- * path blacklisting (:skip => nil, expects Regexp)
- * type whitelisting (:only => /^text\/(?:x|ht)ml/)
- * recursion limit (:depth => 5)
- * include limits (:includes => 32)
- * support for &lt;include&gt; alt and noerror attributes
-
-_It's for development purpose..._
-
-## Installation
-
-    gem install rack-esi
-
-## Rails Setup (environment.rb)
-
-    config.gem 'rack-esi'
-    require 'rack-esi'
-    config.middleware.insert_before config.middleware.first, Rack::ESI
-
-## TODO
-
- * write documentation
- * write more tests
- * support more ESI elements
- * switch to Nokogiri::XML::SAX::Document?
+ * threaded (in case we have slow IOs)
+ * PATH_INFO blacklisting (:skip => nil, should respond to ===)
+ * support for esi|include[alt] and esi|include[noerror] fallbacks
 
 ## Dependencies
 
  * Nokogiri
  * Rack
 
+## Setup
+
+### w/o Gemfile
+
+    $ gem install rack-esi
+
+### w/ Gemfile
+
+	gem 'rack-esi'
+
+### rackup
+
+	use Rack::ESI, options || {}
+	run Application.new
+
+### Rails: environment.rb
+
+    config.gem 'rack-esi' # for setups w/o Gemfile
+    config.middleware.use Rack::ESI, options || {}
+
+## Options
+
+ * poolsize: 4
+   Number of worker threads. A value of 1 disables threading model.
+ * skip: nil
+   This should be an object which responds to #===(PATH_INFO).
+ * parser: Nokogiri::XML::Document
+   You can change this to Nokogiri::HTML::Document, but you should change the serializer, too (see below).
+ * serializer: :to_xhtml
+   The serializer value specifies the method name which is send to the object created by the parser#parse.
+
+## TODO
+
+ * write documentation
+ * write more tests
+ * support more ESI elements
+
 ## Note on Patches/Pull Requests
  
  * Fork the project.
  * Make your feature addition or bug fix.
- * Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
+ * Add tests for it.
  * Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but bump version in a commit by itself I can ignore when I pull)
- * Send me a pull request. Bonus points for topic branches.
+ * Send me a pull request.
 
 ## Thanks
 
@@ -51,4 +68,4 @@ tenderlove and Qerub
 
 ## Copyright
 
-Copyright (c) 2009 Florian Assmann. See LICENSE for details.
+Copyright (c) 2009 Florian Aßmann. See LICENSE for details.
