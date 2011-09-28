@@ -18,7 +18,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  nokogiri
-  rack
   rack-esi!
   riot
