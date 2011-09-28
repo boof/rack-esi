@@ -33,7 +33,7 @@ class Rack::ESI
   def call(env)
     return @app.call(env) if @skip === env['PATH_INFO']
 
-    status, headers, body = app.call env.dup
+    status, headers, body = @app.call env.dup
 
     if status == 200 and headers['Content-Type'] =~ /text\/html/
       body = @processor.new(self, env).process body
