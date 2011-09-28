@@ -25,17 +25,17 @@ Note: This gem should only be used in development. For production use setup varn
 
 ### w/ Gemfile
 
-	gem 'rack-esi'
+    gem 'rack-esi'
 
 ### rackup
 
-	use Rack::ESI, options || {}
-	run Application.new
+    use Rack::ESI, options || {}
+    run Application.new
 
 ### Rails: environment.rb
 
     config.gem 'rack-esi' # for setups w/o Gemfile
-    config.middleware.use Rack::ESI, options || {}
+    config.middleware.insert_before Rails::Rack::Logger, Rack::ESI
 
 ## Options
 
