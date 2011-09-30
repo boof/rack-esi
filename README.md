@@ -32,10 +32,14 @@ Note: This gem should only be used in development. For production use setup varn
     use Rack::ESI, options || {}
     run Application.new
 
-### Rails (only tested with 3.1 so far): environment.rb
+### Rails 2.3: environment.rb
 
     config.gem 'rack-esi' # for setups w/o Gemfile
-    config.middleware.insert_before Rails::Rack::Logger, Rack::ESI
+    config.middleware.unshift Rack::ESI
+
+### Rails 3.1: application.rb
+
+    config.middleware.insert_before ActionDispatch::Static, Rack::ESI
 
 ## Options
 
