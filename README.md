@@ -27,6 +27,10 @@ Note: This gem should only be used in development. For production use setup varn
 
     gem 'rack-esi'
 
+... and ...
+
+    $ bundle
+
 ### rackup
 
     use Rack::ESI, options || {}
@@ -35,11 +39,11 @@ Note: This gem should only be used in development. For production use setup varn
 ### Rails 2.3: environment.rb
 
     config.gem 'rack-esi' # for setups w/o Gemfile
-    config.middleware.unshift Rack::ESI
+    config.middleware.insert Rack::Lock, Rack::ESI
 
-### Rails 3.1: application.rb
+### Rails 3.0: application.rb
 
-    config.middleware.insert_before ActionDispatch::Static, Rack::ESI
+    config.middleware.insert ActionDispatch::Static, Rack::ESI
 
 ## Options
 
