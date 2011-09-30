@@ -38,10 +38,15 @@ Note: This gem should only be used in development. For production use setup varn
 
 ### Rails 2.3: environment.rb
 
-    config.gem 'rack-esi' # for setups w/o Gemfile
+... for setups w/o Gemfile
+
+    config.gem 'rack-esi'
+
+... and ...
+
     config.middleware.insert Rack::Lock, Rack::ESI
 
-### Rails 3.0: application.rb
+### Rails 3.x: application.rb
 
     config.middleware.insert ActionDispatch::Static, Rack::ESI
 
@@ -76,4 +81,4 @@ tenderlove and Qerub
 
 ## Copyright
 
-Copyright (c) 2009 Florian Aßmann. See LICENSE for details.
+Copyright (c) 2011 Florian Aßmann. See LICENSE for details.
