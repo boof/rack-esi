@@ -50,6 +50,10 @@ Note: This gem should only be used in development. For production use setup varn
 
     config.middleware.insert ActionDispatch::Static, Rack::ESI
 
+### Rails 3.x: config/environments/development.rb
+
+    config.middleware.insert_before Rack::Lock, Rack::ESI
+
 ## Options
 
  * poolsize: 4,

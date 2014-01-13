@@ -6,8 +6,6 @@ require 'rack/file'
 require File.expand_path('../../lib/rack-esi', __FILE__)
 Bundler.require :development
 
-Nokogiri
-
 def html(body)
   Nokogiri.HTML(body).root
 end

@@ -6,25 +6,51 @@ context 'Rack::ESI' do
   root = Pathname.new File.join(__dirname__, 'fixtures')
   opts = { :urls => ['/'], :root => root }
 
-  setup { ESI.new Static.new(App.new, opts), skip: /raw/, :poolsize => 1 }
+  context 'linear' do
+    setup { ESI.new Static.new(App.new, opts), skip: /raw/, :poolsize => 1 }
 
-  context 'GET /raw.html' do
-    setup { MockRequest.new(topic).get '/raw.html' }
-    asserts('Content-Type') { topic.content_type }.equals 'text/html'
-    should('not be altered') { topic.body == root.join('raw.html').read }
+    context 'GET /raw.html' do
+      setup { MockRequest.new(topic).get '/raw.html' }
+      asserts('Content-Type') { topic.content_type }.equals 'text/html'
+      should('not be altered') { topic.body == root.join('raw.html').read }
+    end
+
+    context 'GET /index.html' do
+      setup { MockRequest.new(topic).get '/index.html' }
+
+      asserts('Content-Type') { topic.content_type }.equals 'text/html'
+      should('not have any ESI specific nodes') do
+        html(topic.body).
+        at('//e:*', 'e' => Rack::ESI::Processor::NAMESPACE).nil?
+      end
+      should('have meta replacement with content') do
+        not html(topic.body).
+        at("//meta[@name='replacement' and @content='content']").nil?
+      end
+    end
   end
 
-  context 'GET /index.html' do
-    setup { MockRequest.new(topic).get '/index.html' }
+  context 'threaded' do
+    setup { ESI.new Static.new(App.new, opts), skip: /raw/, :poolsize => 2 }
 
-    asserts('Content-Type') { topic.content_type }.equals 'text/html'
-    should('not have any ESI specific nodes') do
-      html(topic.body).
-      at('//e:*', 'e' => Rack::ESI::Processor::NAMESPACE).nil?
+    context 'GET /raw.html' do
+      setup { MockRequest.new(topic).get '/raw.html' }
+      asserts('Content-Type') { topic.content_type }.equals 'text/html'
+      should('not be altered') { topic.body == root.join('raw.html').read }
     end
-    should('have meta replacement with content') do
-      not html(topic.body).
-      at("//meta[@name='replacement' and @content='content']").nil?
+
+    context 'GET /index.html' do
+      setup { MockRequest.new(topic).get '/index.html' }
+
+      asserts('Content-Type') { topic.content_type }.equals 'text/html'
+      should('not have any ESI specific nodes') do
+        html(topic.body).
+        at('//e:*', 'e' => Rack::ESI::Processor::NAMESPACE).nil?
+      end
+      should('have meta replacement with content') do
+        not html(topic.body).
+        at("//meta[@name='replacement' and @content='content']").nil?
+      end
     end
   end
 
